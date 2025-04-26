@@ -6,11 +6,11 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 import os
 
-# 1. Load Dataset
-data_path = "../data/sofmattress_train.csv"  # Adjust path if needed
+# Load Dataset
+data_path = "../data/sofmattress_train.csv" 
 df = pd.read_csv(data_path)
 
-# 2. Basic Preprocessing
+# Basic Preprocessing
 df['sentence'] = df['sentence'].str.lower().str.strip()
 
 # Label encoding
@@ -18,12 +18,12 @@ label_encoder = LabelEncoder()
 df['label_id'] = label_encoder.fit_transform(df['label'])
 intent_classes = label_encoder.classes_
 
-# 3. Train-Test Split
+# Train-Test Split
 train_texts, val_texts, train_labels, val_labels = train_test_split(
     df['sentence'].tolist(), df['label_id'].tolist(), test_size=0.2, random_state=42, stratify=df['label_id']
 )
 
-# 4. Dataset Class
+# Dataset Class
 class IntentDataset(Dataset):
     def __init__(self, texts, labels, tokenizer, max_len):
         self.texts = texts
@@ -50,15 +50,15 @@ class IntentDataset(Dataset):
             'labels': torch.tensor(label, dtype=torch.long)
         }
 
-# 5. Tokenizer and Datasets
+# Tokenizer and Datasets
 tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 train_dataset = IntentDataset(train_texts, train_labels, tokenizer, max_len=32)
 val_dataset = IntentDataset(val_texts, val_labels, tokenizer, max_len=32)
 
-# 6. Load Pretrained BERT
+# Load Pretrained BERT
 model = BertForSequenceClassification.from_pretrained('bert-base-uncased', num_labels=len(intent_classes))
 
-# 7. Training Arguments
+# Training Arguments
 training_args = TrainingArguments(
     output_dir="./results",
     num_train_epochs=3,
@@ -72,7 +72,7 @@ training_args = TrainingArguments(
     save_strategy="epoch",
 )
 
-# 8. Trainer
+# Trainer
 trainer = Trainer(
     model=model,
     args=training_args,
@@ -80,15 +80,15 @@ trainer = Trainer(
     eval_dataset=val_dataset
 )
 
-# 9. Train
+# Train
 trainer.train()
 
-# 10. Evaluate
+# Evaluate
 eval_results = trainer.evaluate()
 print("\nEvaluation Results:")
 print(eval_results)
 
-# 11. Save Model
+# Save Model
 os.makedirs("../results/bert_model", exist_ok=True)
 model.save_pretrained("../results/bert_model/")
 tokenizer.save_pretrained("../results/bert_model/")
