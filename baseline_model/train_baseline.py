@@ -9,11 +9,11 @@ from sklearn.metrics import classification_report, confusion_matrix, accuracy_sc
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# 1. Load Dataset
-data_path = "../data/sofmattress_train.csv"  # Adjust path if needed
+# Load Dataset
+data_path = "../data/sofmattress_train.csv"  
 df = pd.read_csv(data_path)
 
-# 2. Basic Preprocessing
+# Basic Preprocessing
 df['sentence'] = df['sentence'].str.lower().str.strip()
 
 # Label encoding
@@ -23,21 +23,21 @@ df['label_id'] = label_encoder.fit_transform(df['label'])
 # Save the class names
 intent_classes = label_encoder.classes_
 
-# 3. Train-Test Split
+# Train-Test Split
 X_train, X_test, y_train, y_test = train_test_split(
     df['sentence'], df['label_id'], test_size=0.2, random_state=42, stratify=df['label_id']
 )
 
-# 4. TF-IDF Vectorization
+# TF-IDF Vectorization
 vectorizer = TfidfVectorizer(max_features=3000)
 X_train_vec = vectorizer.fit_transform(X_train)
 X_test_vec = vectorizer.transform(X_test)
 
-# 5. Train Logistic Regression
+# Train Logistic Regression
 lr_model = LogisticRegression(max_iter=1000)
 lr_model.fit(X_train_vec, y_train)
 
-# 6. Predict and Evaluate
+# Predict and Evaluate
 y_pred = lr_model.predict(X_test_vec)
 
 # Print Metrics
@@ -60,7 +60,7 @@ os.makedirs("../results", exist_ok=True)
 plt.savefig("../results/baseline_confusion_matrix.png")
 plt.show()
 
-# 7. Save Model and Vectorizer (Optional)
+# Save Model and Vectorizer
 import joblib
 
 os.makedirs("../results/baseline_model", exist_ok=True)
